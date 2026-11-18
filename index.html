@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>games.fun</title>
+<meta name="description" content="Free browser games, built by Samarth and Pratyaksh">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Patrick+Hand&family=Press+Start+2P&family=Playfair+Display:wght@700;900&family=Bebas+Neue&family=Rubik:wght@500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
+<style>
+  :root{--bg:#fff;--fg:#111;--soft:#f4f4f4;--line:#111;--muted:#777;--panel:#fffdf6;--bar:rgba(255,255,255,.92);--edge:#eee}
+  body.dark{--bg:#15151a;--fg:#f3f3f3;--soft:#2a2a33;--line:#f3f3f3;--muted:#aaa;--panel:#1d1d24;--bar:rgba(21,21,26,.92);--edge:#2c2c35}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--fg);font-family:"Patrick Hand",system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;transition:background .25s,color .25s}
+
+  /* ---------- top bar ---------- */
+  .bar{position:sticky;top:0;z-index:40;width:100%;background:var(--bar);backdrop-filter:blur(8px);border-bottom:2px solid var(--edge);display:flex;justify-content:center}
+  .bar-in{width:100%;max-width:640px;display:flex;gap:10px;align-items:center;padding:10px 20px}
+  .icon-btn{min-width:48px;height:48px;flex:none;border-radius:16px;border:3px solid var(--line);background:var(--bg);color:var(--fg);font:inherit;font-size:24px;cursor:pointer;display:grid;place-items:center;transition:transform .15s,background .15s;padding:0 6px}
+  .icon-btn:hover{background:var(--soft)}.icon-btn:active{transform:scale(.92)}
+  .search{flex:1;position:relative;min-width:0}
+  .search input{width:100%;height:48px;border-radius:16px;border:3px solid var(--line);padding:0 44px 0 44px;font:inherit;font-size:20px;outline:none;background:var(--bg);color:var(--fg);transition:box-shadow .15s}
+  .search input:focus{box-shadow:0 0 0 4px #ffd84d}
+  .search .mag{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:19px;pointer-events:none}
+  .search .clear{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:32px;height:32px;border:none;border-radius:50%;background:var(--soft);color:var(--fg);font-size:16px;cursor:pointer;display:none}
+  #profBtn{font-size:18px;font-weight:700}
+
+  /* ---------- header ---------- */
+  header{text-align:center;padding:40px 20px 14px}
+  .logo{font-family:"Bangers","Impact",sans-serif;font-size:clamp(56px,16vw,104px);letter-spacing:2px;line-height:1;display:inline-flex;align-items:center;gap:10px}
+  .logo .dot{width:.5em;height:.5em;border-radius:50%;background:#ff3b5c;display:inline-block;box-shadow:inset -6px -6px 0 rgba(0,0,0,.18);transform:translateY(.05em)}
+  .tag{font-size:clamp(20px,5vw,30px);margin-top:10px}
+  .hero-chip{margin-top:16px;font:inherit;font-size:21px;color:#111;background:#ffd84d;border:3px solid var(--line);border-radius:99px;padding:8px 20px;cursor:pointer;box-shadow:0 4px 0 var(--line);transition:transform .1s,box-shadow .1s}
+  .hero-chip:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+  .hero-chip.pop{animation:boing .6s ease}
+  @keyframes boing{0%{transform:scale(1)}40%{transform:scale(1.15) rotate(-3deg)}100%{transform:scale(1)}}
+  .count{margin-top:10px;color:var(--muted);font-size:18px}
+
+  /* ---------- chips ---------- */
+  .chips{width:100%;max-width:640px;display:flex;gap:8px;overflow-x:auto;padding:12px 20px 16px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{flex:none;font:inherit;font-size:19px;color:var(--fg);background:var(--bg);border:3px solid var(--line);border-radius:99px;padding:6px 16px;cursor:pointer;transition:background .15s,transform .1s}
+  .chip:active{transform:scale(.94)}
+  .chip.on{background:#111;color:#fff}
+  body.dark .chip.on{background:#ffd84d;color:#111;border-color:#ffd84d}
+  .chip.rand{background:#ff3b5c;color:#fff;border-color:var(--line)}
+
+  /* ---------- cards ---------- */
+  main{width:100%;max-width:640px;padding:0 20px;display:flex;flex-direction:column;gap:22px;margin-bottom:50px}
+  .card{position:relative;display:flex;align-items:center;justify-content:center;height:190px;border-radius:30px;border:4px solid #111;overflow:hidden;text-decoration:none;color:#111;transition:transform .18s ease, box-shadow .18s ease;box-shadow:0 4px 0 rgba(0,0,0,.12);animation:pop .4s ease both;cursor:pointer}
+  body.dark .card{border-color:#000}
+  .card:hover{transform:translateY(-5px) scale(1.01);box-shadow:0 12px 24px rgba(0,0,0,.25)}
+  .card:active{transform:scale(.98)}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+  .deco{position:absolute;font-size:44px;user-select:none;pointer-events:none;transition:transform .25s}
+  .card:hover .deco{transform:rotate(-10deg) scale(1.12)}
+  .title{position:relative;z-index:2;text-align:center;line-height:1}
+  .new{position:absolute;top:12px;right:12px;z-index:3;background:#ffd84d;border:3px solid #111;border-radius:99px;font-family:"Rubik",sans-serif;font-weight:900;font-size:13px;letter-spacing:1px;padding:3px 10px;color:#111;transform:rotate(4deg)}
+  .empty{display:none;text-align:center;font-size:26px;padding:50px 10px;color:var(--muted)}
+  .empty big{display:block;font-size:64px}
+
+  .hand{background:radial-gradient(circle at 50% 120%,#2e9c4a 0 55%,#49b866 56% 100%);border-color:#0c3d1c}
+  .hand .title{font-family:"Rubik",sans-serif;font-weight:900;font-size:clamp(38px,11vw,56px);color:#fff;text-shadow:3px 3px 0 #0c3d1c;line-height:1.02}
+  .front{background:linear-gradient(135deg,#fff 0%,#ffe0e4 100%)}
+  .front .title{font-family:"Bangers",sans-serif;font-size:clamp(46px,13vw,66px);color:#fff;-webkit-text-stroke:3px #111;paint-order:stroke fill;text-shadow:4px 4px 0 #111;letter-spacing:2px;line-height:.98}
+  .block{background:#0b0b0b}
+  .block .grass{position:absolute;left:0;right:0;bottom:0;height:40px;background:linear-gradient(#5aa532 0 12px,transparent 12px),repeating-linear-gradient(90deg,#8b5a2b 0 14px,#7a4d22 14px 28px,#96643a 28px 42px);border-top:4px solid #3c7a1c}
+  .block .title{font-family:"Press Start 2P",monospace;font-size:clamp(22px,7vw,32px);color:#fff;text-shadow:4px 4px 0 #3a3a3a;line-height:1.35;margin-bottom:30px}
+  .star{position:absolute;width:10px;height:10px;background:#8cc4ff;box-shadow:10px 0 #8cc4ff,-10px 0 #8cc4ff,0 10px #8cc4ff,0 -10px #8cc4ff}
+  .chess{background-color:#f0d9b5;background-image:conic-gradient(#b58863 25%,transparent 0 50%,#b58863 0 75%,transparent 0);background-size:70px 70px}
+  .chess .title{font-family:"Playfair Display",serif;font-weight:900;font-size:clamp(44px,12vw,64px);background:#fffdf5;border:3px solid #111;border-radius:16px;padding:6px 26px}
+  .flappy{background:linear-gradient(#6ad0ff,#bff0ff 70%,#ded895 70%);border-color:#2a6b87}
+  .flappy .title{font-family:"Press Start 2P",monospace;font-size:clamp(24px,8vw,34px);color:#fff;text-shadow:3px 3px 0 #2a2a2a,-2px -2px 0 #2a2a2a,2px -2px 0 #2a2a2a,-2px 2px 0 #2a2a2a}
+  .pipe{position:absolute;width:44px;background:#5fbf2a;border:4px solid #2c6a10;border-radius:4px}
+  .gta{background:linear-gradient(135deg,#ff7a18,#af002d 70%,#2b1055)}
+  .gta .title{font-family:"Bebas Neue",sans-serif;font-size:clamp(70px,22vw,96px);letter-spacing:6px;color:#fff;text-shadow:0 4px 0 #111,0 0 18px rgba(255,255,255,.4)}
+  .snake{background-color:#aad751;background-image:conic-gradient(#a2d149 25%,transparent 0 50%,#a2d149 0 75%,transparent 0);background-size:56px 56px;border-color:#4a752c}
+  .snake .title{font-family:"Rubik",sans-serif;font-weight:900;font-size:clamp(44px,13vw,62px);color:#fff;-webkit-text-stroke:3px #1e3d0a;paint-order:stroke fill;text-shadow:4px 4px 0 #1e3d0a}
+  .ttt{background:#fff8e7}
+  .ttt .title{font-size:clamp(44px,13vw,62px);border-bottom:5px solid #3b82f6;padding:0 14px 4px;border-radius:0 0 40px 40px}
+  .ttt .x{color:#ff3b5c}.ttt .o{color:#3b82f6}
+
+  /* ---------- coming soon ---------- */
+  .card.soon{height:160px;border-style:dashed;filter:saturate(.7);cursor:default}
+  .card.soon:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,0,0,.2)}
+  .soon .title{font-family:"Rubik",sans-serif;font-weight:900;font-size:clamp(34px,10vw,48px);margin-bottom:30px;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.45)}
+  .ribbon{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:#111;color:#fff;font-family:"Rubik",sans-serif;font-weight:900;font-size:14px;letter-spacing:1.5px;padding:5px 14px;border-radius:99px;z-index:3;white-space:nowrap}
+  .s-word{background:linear-gradient(135deg,#6aaa64,#c9b458)}
+  .s-golf{background:linear-gradient(135deg,#3fae5a,#9ee08a)}
+  .s-race{background:repeating-linear-gradient(45deg,#2b2b33 0 22px,#1d1d24 22px 44px)}
+  .s-mem{background:linear-gradient(135deg,#7b4dff,#d36bff)}
+  .s-space{background:radial-gradient(circle at 20% 30%,#2b3a8f,#0a0d2c 70%)}
+  .s-ludo{background:conic-gradient(#e63946 0 25%,#2a9d8f 0 50%,#f4c430 0 75%,#3b82f6 0)}
+  .s-carrom{background:radial-gradient(circle,#e8c48a 0 45%,#a8713a 46%)}
+  .s-carrom .title{color:#3b230d;text-shadow:2px 2px 0 rgba(255,255,255,.5)}
+
+  /* ---------- toast ---------- */
+  .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,40px);background:#111;color:#fff;font-size:20px;padding:12px 20px;border-radius:18px;border:3px solid #ffd84d;z-index:120;opacity:0;pointer-events:none;transition:all .3s;max-width:90vw;text-align:center}
+  .toast.on{opacity:1;transform:translate(-50%,0)}
+
+  /* ---------- drawer ---------- */
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:60}
+  .scrim.on{opacity:1;pointer-events:auto}
+  .drawer{position:fixed;top:0;left:0;bottom:0;width:min(320px,84vw);background:var(--bg);border-right:4px solid var(--line);z-index:70;transform:translateX(-102%);transition:transform .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;padding:22px 18px;overflow:auto}
+  .drawer.on{transform:none}
+  .drawer h2{font-family:"Bangers",sans-serif;font-size:38px;letter-spacing:2px;margin-bottom:18px;font-weight:400}
+  .drawer .item{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;font-size:23px;background:var(--bg);color:var(--fg);text-decoration:none;border:3px solid var(--line);border-radius:18px;padding:12px 16px;margin-bottom:12px;cursor:pointer;transition:transform .15s,background .15s}
+  .drawer .item:hover{background:#fff4c2;color:#111;transform:translateX(4px)}
+  .drawer .item span{font-size:26px}
+  .drawer small{margin-top:auto;color:var(--muted);font-size:16px;line-height:1.3;padding-top:10px}
+
+  /* ---------- modal ---------- */
+  .modal{position:fixed;inset:0;z-index:80;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5)}
+  .modal.on{display:flex}
+  .sheet{width:100%;max-width:640px;max-height:92vh;overflow:auto;background:var(--panel);color:var(--fg);border:4px solid var(--line);border-bottom:none;border-radius:30px 30px 0 0;padding:26px 24px 34px;animation:up .3s ease both}
+  @keyframes up{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
+  @media(min-width:700px){.modal{align-items:center}.sheet{border-radius:30px;border-bottom:4px solid var(--line)}}
+  .sheet-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .sheet h3{font-family:"Bangers",sans-serif;font-size:40px;letter-spacing:2px;font-weight:400}
+  .sheet p{font-size:21px;line-height:1.42;margin-bottom:14px}
+  .makers{display:flex;gap:12px;margin:6px 0 18px;flex-wrap:wrap}
+  .maker{flex:1;min-width:140px;border:3px solid var(--line);border-radius:20px;padding:14px;text-align:center;background:var(--bg)}
+  .maker b{display:block;font-size:26px}.maker i{font-style:normal;color:var(--muted);font-size:17px}
+  .maker .face{font-size:38px}
+  .maker .role{display:inline-block;margin:6px 0 4px;font-family:"Rubik",sans-serif;font-weight:700;font-size:15px;border:3px solid var(--line);border-radius:99px;padding:2px 12px;color:#111}
+  .maker .role.dev{background:#b8e4ff}.maker .role.des{background:#ffc9e3}
+  .maker i{display:block}
+  .maker small{display:block;margin-top:6px;color:var(--muted);font-size:16px;line-height:1.25}
+
+  /* share */
+  .preview{border:4px solid #111;border-radius:26px;padding:22px 16px;text-align:center;background:linear-gradient(135deg,#ffd84d,#ff8fa3);color:#111;box-shadow:0 5px 0 rgba(0,0,0,.15);margin-bottom:6px}
+  .preview .plogo{font-family:"Bangers",sans-serif;font-size:clamp(40px,12vw,60px);letter-spacing:2px;line-height:1}
+  .preview p{font-size:20px;margin:6px 0 0}
+  .preview .fire{display:none;margin-top:10px;background:#111;color:#fff;border-radius:99px;padding:4px 14px;font-size:18px}
+  .linkbox{display:flex;gap:8px;align-items:center;border:3px solid var(--line);border-radius:16px;padding:6px 6px 6px 14px;background:var(--bg)}
+  .linkbox span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:20px}
+  .sharebtn{font:inherit;font-size:20px;color:#111;border:3px solid #111;border-radius:14px;padding:9px 14px;background:#ffd84d;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
+  .sharebtn:active{transform:scale(.95)}
+  .sgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+  .sgrid .sharebtn{width:100%;padding:12px 8px;box-shadow:0 4px 0 #111}
+  .sh-wa{background:#25d366}.sh-tg{background:#4aa8e8}.sh-x{background:#fff}.sh-fb{background:#4c7ee6;color:#fff}.sh-ml{background:#ffb86b}.sh-sm{background:#c7f0a8}
+  .sh-native{grid-column:1/-1;background:#ff3b5c;color:#fff;font-size:23px}
+  .qr{margin-top:20px;text-align:center;border:3px solid var(--line);border-radius:24px;padding:16px;background:var(--bg)}
+  .qr img{width:190px;height:190px;max-width:100%;border:4px solid #111;border-radius:14px;background:#fff;padding:6px}
+  .qr p{color:var(--muted);margin:8px 0 0;font-size:17px}
+  .sheet label{display:block;font-size:20px;margin:14px 0 6px}
+  .sheet input[type=text],.sheet textarea{width:100%;font:inherit;font-size:20px;border:3px solid var(--line);border-radius:16px;padding:11px 14px;background:var(--bg);color:var(--fg);outline:none}
+  .sheet textarea{min-height:120px;resize:vertical}
+  .sheet input:focus,.sheet textarea:focus{box-shadow:0 0 0 4px #ffd84d}
+  .stars{display:flex;gap:6px}
+  .stars button{border:none;background:none;font-size:42px;cursor:pointer;filter:grayscale(1);opacity:.45;transition:transform .12s,filter .12s,opacity .12s;line-height:1}
+  .stars button.on{filter:none;opacity:1}.stars button:active{transform:scale(.85)}
+  .send{margin-top:14px;width:100%;font:inherit;font-size:24px;padding:14px;border-radius:18px;border:3px solid #111;background:#ffd84d;color:#111;cursor:pointer;box-shadow:0 5px 0 #111;transition:transform .1s,box-shadow .1s}
+  .send:active{transform:translateY(4px);box-shadow:0 1px 0 #111}
+  .send:disabled{opacity:.55;cursor:default}
+  .send.alt{background:var(--bg);color:var(--fg);border-color:var(--line);box-shadow:0 5px 0 var(--line);font-size:20px;padding:10px}
+  .status{margin-top:12px;font-size:20px;min-height:26px;line-height:1.3}
+  .status.ok{color:#188a3d}.status.err{color:#d6283f}
+  .counter{float:right;font-size:16px;color:var(--muted)}
+
+  /* profile */
+  .streak-box{display:flex;gap:12px;margin-bottom:14px}
+  .sbox{flex:1;text-align:center;border:3px solid var(--line);border-radius:20px;padding:12px 6px;background:var(--bg)}
+  .sbox b{display:block;font-family:"Bangers",sans-serif;font-size:42px;font-weight:400;letter-spacing:1px;line-height:1.05}
+  .sbox span{color:var(--muted);font-size:16px}
+  .sbox.fire{background:#ffd84d;color:#111}.sbox.fire span{color:#444}
+  .week{display:flex;gap:8px;margin-bottom:20px}
+  .day{flex:1;text-align:center;font-size:15px;color:var(--muted)}
+  .day i{display:grid;place-items:center;height:40px;border:3px solid var(--line);border-radius:12px;font-style:normal;font-size:20px;background:var(--soft);margin-bottom:4px}
+  .day.on i{background:#ffd84d}
+  .day.today i{box-shadow:0 0 0 3px #ff3b5c}
+  .uname{display:flex;align-items:center;gap:10px;font-size:28px;border:3px solid var(--line);border-radius:20px;padding:12px 16px;background:var(--bg);margin-bottom:6px;word-break:break-all}
+  .hint{color:var(--muted);font-size:17px;line-height:1.35}
+  details{margin-top:18px;border:3px solid var(--line);border-radius:18px;padding:12px 16px;background:var(--bg)}
+  summary{cursor:pointer;font-size:22px}
+  details textarea{min-height:70px;font-size:15px!important;word-break:break-all}
+
+  footer{margin-top:auto;width:100%;text-align:center;padding:26px 20px 34px;border-top:2px solid var(--edge);font-size:19px;color:var(--muted)}
+  footer b{color:var(--fg)}
+  footer a{color:inherit}
+</style>
+</head>
+<body>
+
+<div class="bar"><div class="bar-in">
+  <button class="icon-btn" id="menuBtn" aria-label="Open menu">☰</button>
+  <div class="search">
+    <span class="mag">🔍</span>
+    <input id="q" type="search" placeholder="Search games..." autocomplete="off" enterkeyhint="search">
+    <button class="clear" id="clr" aria-label="Clear search">✕</button>
+  </div>
+  <button class="icon-btn" id="profBtn" aria-label="Profile and streak">👤</button>
+</div></div>
+
+<header>
+  <div class="logo">GAMES<span class="dot"></span>FUN</div>
+  <p class="tag">games and stuff, all in one place</p>
+  <button class="hero-chip" id="hero" type="button">🔥 ...</button>
+  <p class="count" id="count"></p>
+</header>
+
+<div class="chips" id="chips"></div>
+
+<main id="list"></main>
+<div class="empty" id="empty"><big>🕵️</big>No games found. Try another name!</div>
+
+<footer>
+  <b>games.fun</b> &nbsp;·&nbsp; © 2026 games.fun. All rights reserved.<br>
+  <a href="#" id="footShare">Share with friends</a>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<!-- drawer menu -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Menu">
+  <h2>MENU</h2>
+  <button class="item" data-go="top"><span>🎮</span>Games</button>
+  <button class="item" data-go="profile"><span>🔥</span>Profile &amp; Streak</button>
+  <button class="item" data-go="about"><span>ℹ️</span>About</button>
+  <button class="item" data-go="feedback"><span>💬</span>Feedback</button>
+  <button class="item" data-go="share"><span>📣</span>Share</button>
+  <button class="item" id="themeBtn"><span>🌙</span><b style="font-weight:400" id="themeTxt">Dark mode</b></button>
+  <small>© 2026 games.fun<br>All rights reserved.</small>
+</aside>
+
+<!-- about -->
+<div class="modal" id="about"><div class="sheet" role="dialog" aria-label="About">
+  <div class="sheet-head"><h3>ABOUT</h3><button class="icon-btn" data-close>✕</button></div>
+  <div class="makers">
+    <div class="maker"><div class="face">👨‍💻</div><b>Samarth</b><span class="role dev">💻 Developer</span><i>age 13</i><small>Writes the code and makes every game work</small></div>
+    <div class="maker"><div class="face">🧑‍🎨</div><b>Pratyaksh</b><span class="role des">🎨 Designer</span><i>age 13</i><small>Creates the look, colors and feel of the site</small></div>
+  </div>
+  <p>games.fun was made by two 13-year-old friends, <b>Samarth</b> and <b>Pratyaksh</b>, and launched in <b>2026</b>. It started as a simple idea: what if we built the games we love to play, and put them all in one place that anyone can open in a browser, with no downloads, no sign-ups and no waiting?</p>
+  <p><b>Samarth</b> is our developer. He writes the code in HTML, CSS and JavaScript and makes the games actually work. <b>Pratyaksh</b> is our designer. He decides how everything looks and feels, from the colors and cards to the menus. Together we made classics like Chess, Snake, Flappy and Tic Tac Toe, then got more ambitious with Hand Cricket, Frontline Battler and Block Craft. Some of them took a lot of tries, a lot of bugs and a lot of late nights to get right, and we learned something new from each one.</p>
+  <p>We are still learning and still adding more games. Look out for the "Coming soon" cards, we are working on them! If something breaks or you have an idea for what we should build next, please tell us in the Feedback section. Thank you for playing, it really means a lot to us. 💛</p>
+</div></div>
+
+<!-- feedback -->
+<div class="modal" id="feedback"><div class="sheet" role="dialog" aria-label="Feedback">
+  <div class="sheet-head"><h3>FEEDBACK</h3><button class="icon-btn" data-close>✕</button></div>
+  <p>Found a bug? Have an idea? Tell Samarth and Pratyaksh what you think!</p>
+  <form id="fbForm" autocomplete="off">
+    <label>How would you rate games.fun?</label>
+    <div class="stars" id="stars">
+      <button type="button" data-v="1">⭐</button><button type="button" data-v="2">⭐</button><button type="button" data-v="3">⭐</button><button type="button" data-v="4">⭐</button><button type="button" data-v="5">⭐</button>
+    </div>
+    <label for="fbName">Your name (optional)</label>
+    <input type="text" id="fbName" maxlength="40" placeholder="Anonymous">
+    <label for="fbMsg">Your feedback <span class="counter" id="cnt">0/500</span></label>
+    <textarea id="fbMsg" maxlength="500" placeholder="What do you like? What should we fix or add?"></textarea>
+    <button class="send" id="sendBtn" type="submit">Send feedback 🚀</button>
+    <div class="status" id="fbStatus" role="status"></div>
+  </form>
+</div></div>
+
+<!-- share -->
+<div class="modal" id="share"><div class="sheet" role="dialog" aria-label="Share">
+  <div class="sheet-head"><h3>SHARE</h3><button class="icon-btn" data-close>✕</button></div>
+  <p>Tell your friends about games.fun and play together!</p>
+  <div class="preview">
+    <div class="plogo">GAMES.FUN</div>
+    <p>Free games, made by two 13-year-olds</p>
+    <span class="fire" id="shFire"></span>
+  </div>
+
+  <label>Site link</label>
+  <div class="linkbox"><span id="shLink"></span><button class="sharebtn" id="shCopyLink" type="button">📋 Copy</button></div>
+
+  <label for="shMsg">Message (you can edit it)</label>
+  <textarea id="shMsg"></textarea>
+
+  <div class="sgrid">
+    <button class="sharebtn sh-native" id="shNative" type="button">📣 Share…</button>
+    <a class="sharebtn sh-wa" id="shWa" target="_blank" rel="noopener">💬 WhatsApp</a>
+    <a class="sharebtn sh-tg" id="shTg" target="_blank" rel="noopener">✈️ Telegram</a>
+    <a class="sharebtn sh-x" id="shX" target="_blank" rel="noopener">𝕏 Post</a>
+    <a class="sharebtn sh-fb" id="shFb" target="_blank" rel="noopener">📘 Facebook</a>
+    <a class="sharebtn sh-ml" id="shMl">✉️ Email</a>
+    <a class="sharebtn sh-sm" id="shSm">📱 SMS</a>
+    <button class="sharebtn" id="shCopyMsg" type="button" style="grid-column:1/-1">📝 Copy message + link</button>
+  </div>
+
+  <div class="qr">
+    <img id="shQr" alt="QR code for games.fun" width="190" height="190">
+    <p>Scan with a phone camera to open games.fun</p>
+  </div>
+</div></div>
+
+<!-- profile -->
+<div class="modal" id="profile"><div class="sheet" role="dialog" aria-label="Profile and streak">
+  <div class="sheet-head"><h3>PROFILE</h3><button class="icon-btn" data-close>✕</button></div>
+
+  <div class="streak-box">
+    <div class="sbox fire"><b id="pStreak">0</b><span>🔥 day streak</span></div>
+    <div class="sbox"><b id="pBest">0</b><span>best streak</span></div>
+    <div class="sbox"><b id="pDays">0</b><span>days played</span></div>
+  </div>
+  <div class="week" id="pWeek"></div>
+  <p class="hint" style="margin-top:-8px;margin-bottom:18px">Open games.fun every day to keep your streak alive. Miss a day and it starts again from 1!</p>
+
+  <!-- registered -->
+  <div id="doneBox" style="display:none">
+    <label>Your username</label>
+    <div class="uname"><span>✅</span><span id="uShow"></span></div>
+    <p class="hint">This username is yours for good on this device. Save your backup code below so you can get it back on a new phone or after clearing your browser.</p>
+  </div>
+
+  <!-- not registered -->
+  <form id="regBox" autocomplete="off">
+    <label for="uIn">Pick a username (permanent)</label>
+    <input type="text" id="uIn" maxlength="16" placeholder="e.g. cool_player_07" autocapitalize="off" spellcheck="false">
+    <p class="hint" style="margin-top:8px">3 to 16 letters, numbers or underscore. You can't change it later, so choose well!</p>
+    <button class="send" id="regBtn" type="submit">Register username 🏷️</button>
+    <div class="status" id="regStatus" role="status"></div>
+  </form>
+
+  <details>
+    <summary>🔐 Backup &amp; restore</summary>
+    <label>Your backup code</label>
+    <textarea id="bkOut" readonly placeholder="Register a username to get a backup code"></textarea>
+    <button class="send alt" id="bkCopy" type="button">Copy backup code</button>
+    <label for="bkIn">Restore from a backup code</label>
+    <textarea id="bkIn" placeholder="Paste your code here (starts with GF1-)"></textarea>
+    <button class="send alt" id="bkRestore" type="button">Restore</button>
+    <div class="status" id="bkStatus"></div>
+  </details>
+</div></div>
+
+<script>
+/* ======================= config ======================= */
+const SCALEDRONE_CHANNEL_ID = 'oNweOwjOVoLfw8KA';
+const ROOM_VISITS   = 'observable-visits';
+const ROOM_FEEDBACK = 'observable-feedback';
+const ROOM_USERS    = 'observable-users';
+const RESERVED = ['admin','owner','moderator','mod','support','gamesfun','games_fun','samarth','pratyaksh','staff','official','root','system'];
+
+/* ======================= helpers ======================= */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rid = () => Math.random().toString(36).slice(2) + Date.now().toString(36);
+const jget = (k, d=null) => { try{ const v = JSON.parse(localStorage.getItem(k)); return v ?? d; }catch(e){ return d; } };
+const jset = (k, v) => { try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+let toastT; function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),3200); }
+function getVid(){ try{ let v=localStorage.getItem('gf_vid'); if(!v){ v=rid(); localStorage.setItem('gf_vid',v); } return v; }catch(e){ return 'anon'; } }
+
+/* ======================= theme ======================= */
+function applyTheme(dark){ document.body.classList.toggle('dark', dark); $('#themeTxt').textContent = dark ? 'Light mode' : 'Dark mode'; document.querySelector('meta[name=theme-color]').content = dark ? '#15151a' : '#ffffff'; }
+applyTheme(jget('gf_dark', false));
+$('#themeBtn').onclick = () => { const d = !document.body.classList.contains('dark'); applyTheme(d); jset('gf_dark', d); };
+
+/* ======================= games ======================= */
+const GAMES = [
+  { name:'Hand Cricket', file:'cricket.html', cls:'hand', cat:'sports', isNew:true, tags:'cricket bat ball sports odd even hand',
+    html:`<span class="deco" style="left:20px;top:16px">🏏</span><span class="deco" style="right:24px;top:44px">✋</span><span class="deco" style="right:30px;bottom:14px">🥎</span><span class="title">Hand<br>Cricket</span>` },
+  { name:'Frontline Battler', file:'battle.html', cls:'front', cat:'action', isNew:true, tags:'battle war shooter army frontline fight soldiers',
+    html:`<span class="deco" style="left:16px;top:12px">🪖</span><span class="deco" style="left:26px;bottom:10px">🔫</span><span class="deco" style="right:20px;top:48px">💥</span><span class="deco" style="right:28px;bottom:10px">🛡️</span><span class="title">Frontline<br>Battler</span>` },
+  { name:'Block Craft', file:'minecraft.html', cls:'block', cat:'action', isNew:true, tags:'block craft minecraft build sandbox mine voxel',
+    html:`<span class="star" style="left:40px;top:26px"></span><span class="star" style="left:190px;top:14px"></span><span class="star" style="right:56px;top:60px"></span><span class="star" style="right:180px;top:70px"></span><div class="grass"></div><span class="title">Block<br>Craft</span>` },
+  { name:'Chess', file:'chess.html', cls:'chess', cat:'strategy', tags:'chess board strategy king queen',
+    html:`<span class="deco" style="left:18px;top:10px">♞</span><span class="deco" style="right:20px;bottom:8px">♛</span><span class="title">Chess</span>` },
+  { name:'Flappy', file:'flappy.html', cls:'flappy', cat:'classic', tags:'flappy bird pipes tap',
+    html:`<div class="pipe" style="left:30px;top:-6px;height:70px"></div><div class="pipe" style="left:30px;bottom:-6px;height:50px"></div><div class="pipe" style="right:30px;top:-6px;height:44px"></div><div class="pipe" style="right:30px;bottom:-6px;height:80px"></div><span class="deco" style="left:110px;top:24px">🐤</span><span class="title">FLAPPY</span>` },
+  { name:'GTA', file:'gta.html', cls:'gta', cat:'action', tags:'gta car city drive open world',
+    html:`<span class="deco" style="left:20px;bottom:10px">🚗</span><span class="deco" style="right:22px;top:12px">🚁</span><span class="title">GTA</span>` },
+  { name:'Snake', file:'snake.html', cls:'snake', cat:'classic', tags:'snake apple classic',
+    html:`<span class="deco" style="left:22px;top:18px">🍎</span><span class="deco" style="right:24px;bottom:14px">🐍</span><span class="title">SNAKE</span>` },
+  { name:'Tic Tac Toe', file:'tictactoe.html', cls:'ttt', cat:'classic', tags:'tic tac toe xo noughts crosses two player',
+    html:`<span class="deco x" style="left:24px;top:8px;font-size:60px;font-weight:bold">✕</span><span class="deco o" style="right:26px;bottom:6px;font-size:60px;font-weight:bold">○</span><span class="title">Tic <span class="x">Tac</span> <span class="o">Toe</span></span>` },
+
+  /* ---- coming soon ---- */
+  { name:'Word Guess', soon:true, cls:'s-word', cat:'puzzle', tags:'word guess wordle letters puzzle',
+    html:`<span class="deco" style="left:20px;top:14px">🔤</span><span class="deco" style="right:22px;top:14px">✏️</span><span class="title">Word Guess</span>` },
+  { name:'Mini Golf', soon:true, cls:'s-golf', cat:'sports', tags:'mini golf putt sports',
+    html:`<span class="deco" style="left:22px;top:14px">⛳</span><span class="deco" style="right:24px;top:18px">🏌️</span><span class="title">Mini Golf</span>` },
+  { name:'Racing Rush', soon:true, cls:'s-race', cat:'action', tags:'racing rush car race speed',
+    html:`<span class="deco" style="left:20px;top:14px">🏎️</span><span class="deco" style="right:22px;top:14px">🏁</span><span class="title">Racing Rush</span>` },
+  { name:'Memory Match', soon:true, cls:'s-mem', cat:'puzzle', tags:'memory match cards brain puzzle',
+    html:`<span class="deco" style="left:20px;top:14px">🧠</span><span class="deco" style="right:22px;top:14px">🃏</span><span class="title">Memory Match</span>` },
+  { name:'Space Shooter', soon:true, cls:'s-space', cat:'action', tags:'space shooter rocket aliens',
+    html:`<span class="deco" style="left:20px;top:14px">🚀</span><span class="deco" style="right:22px;top:14px">👾</span><span class="title">Space Shooter</span>` },
+  { name:'Ludo Party', soon:true, cls:'s-ludo', cat:'classic', tags:'ludo party dice board multiplayer',
+    html:`<span class="deco" style="left:20px;top:14px">🎲</span><span class="deco" style="right:22px;top:14px">♟️</span><span class="title">Ludo Party</span>` },
+  { name:'Carrom', soon:true, cls:'s-carrom', cat:'sports', tags:'carrom board striker coins',
+    html:`<span class="deco" style="left:20px;top:14px">🎯</span><span class="deco" style="right:22px;top:14px">🪙</span><span class="title">Carrom</span>` }
+];
+const CATS = [['all','All'],['action','Action'],['sports','Sports'],['strategy','Strategy'],['classic','Classic'],['puzzle','Puzzle'],['soon','Coming soon']];
+const READY = GAMES.filter(g => !g.soon).length, SOON = GAMES.length - READY;
+
+const list = $('#list'), empty = $('#empty'), q = $('#q'), clr = $('#clr'), count = $('#count'), chipsEl = $('#chips');
+let cat = 'all';
+
+chipsEl.innerHTML = CATS.map(([k,l]) => `<button class="chip${k==='all'?' on':''}" data-cat="${k}">${l}</button>`).join('') + `<button class="chip rand" id="rand">🎲 Random</button>`;
+chipsEl.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if (b.id === 'rand'){ const r = GAMES.filter(g=>!g.soon); const g = r[Math.floor(Math.random()*r.length)]; toast('Let\'s play ' + g.name + '! 🎲'); setTimeout(()=>{ location.href = g.file; }, 600); return; }
+  cat = b.dataset.cat; chipsEl.querySelectorAll('.chip').forEach(c => c.classList.toggle('on', c===b)); render();
+});
+
+function render(){
+  const f = q.value.trim().toLowerCase();
+  const shown = GAMES.filter(g => (cat==='all' || (cat==='soon' ? g.soon : g.cat===cat)) && (!f || (g.name+' '+g.tags+(g.soon?' coming soon':'')).toLowerCase().includes(f)));
+  list.innerHTML = shown.map((g,i) => g.soon
+    ? `<div class="card soon ${g.cls}" data-soon="${esc(g.name)}" style="animation-delay:${i*40}ms">${g.html}<span class="ribbon">COMING SOON</span></div>`
+    : `<a class="card ${g.cls}" href="${g.file}" style="animation-delay:${i*40}ms" aria-label="Play ${esc(g.name)}">${g.html}${g.isNew?'<span class="new">NEW</span>':''}</a>`).join('');
+  empty.style.display = shown.length ? 'none' : 'block';
+  count.textContent = (f || cat!=='all') ? `${shown.length} shown` : `${READY} games · ${SOON} coming soon`;
+  clr.style.display = f ? 'block' : 'none';
+}
+q.addEventListener('input', render);
+clr.addEventListener('click', () => { q.value=''; render(); q.focus(); });
+list.addEventListener('click', e => { const s = e.target.closest('[data-soon]'); if (s) toast(s.dataset.soon + ' is coming soon! 🚧 Tell us what you want next in Feedback.'); });
+render();
+
+/* ======================= drawer + modals ======================= */
+const drawer = $('#drawer'), scrim = $('#scrim');
+function openDrawer(on){ drawer.classList.toggle('on',on); scrim.classList.toggle('on',on); }
+$('#menuBtn').onclick = () => openDrawer(true);
+scrim.onclick = () => openDrawer(false);
+function openModal(id){ openDrawer(false); closeModals(); if(id==='profile') renderProfile(); if(id==='share') renderShare(); $('#'+id).classList.add('on'); document.body.style.overflow='hidden'; }
+function closeModals(){ document.querySelectorAll('.modal.on').forEach(m=>m.classList.remove('on')); document.body.style.overflow=''; }
+drawer.querySelectorAll('[data-go]').forEach(b => b.onclick = () => {
+  const go = b.dataset.go;
+  if (go==='top'){ openDrawer(false); closeModals(); window.scrollTo({top:0,behavior:'smooth'}); }
+  else openModal(go);
+});
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeModals);
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if(e.target===m) closeModals(); }));
+document.addEventListener('keydown', e => { if(e.key==='Escape'){ closeModals(); openDrawer(false); } });
+$('#profBtn').onclick = () => openModal('profile');
+$('#hero').onclick = () => openModal('profile');
+$('#footShare').onclick = e => { e.preventDefault(); openModal('share'); };
+
+/* ======================= scaledrone ======================= */
+/* Short connection: subscribe, publish one message, close (saves connection slots). */
+function sendToScaledrone(room, payload){
+  return new Promise((resolve, reject) => {
+    if (typeof Scaledrone === 'undefined') return reject(new Error('offline'));
+    let done = false, drone;
+    const finish = err => { if(done) return; done = true; clearTimeout(timer); try{ drone && drone.close(); }catch(e){} err ? reject(err) : resolve(); };
+    const timer = setTimeout(() => finish(new Error('timeout')), 12000);
+    try{
+      drone = new Scaledrone(SCALEDRONE_CHANNEL_ID);
+      drone.on('error', e => finish(e instanceof Error ? e : new Error('connection error')));
+      drone.on('open', err => {
+        if (err) return finish(err);
+        const r = drone.subscribe(room);
+        r.on('open', e => {
+          if (e) return finish(e);
+          drone.publish({ room, message: payload });
+          setTimeout(() => finish(), 700);
+        });
+        r.on('error', e => finish(e instanceof Error ? e : new Error('room error')));
+      });
+    }catch(e){ finish(e); }
+  });
+}
+/* Reads recent username claims to see if a name is already taken (best effort, last ~100 claims). */
+function isNameTaken(lower, myVid){
+  return new Promise((resolve, reject) => {
+    if (typeof Scaledrone === 'undefined') return reject(new Error('offline'));
+    let done = false, taken = false, drone;
+    const finish = err => { if(done) return; done = true; clearTimeout(timer); try{ drone && drone.close(); }catch(e){} err ? reject(err) : resolve(taken); };
+    const timer = setTimeout(() => finish(new Error('timeout')), 9000);
+    try{
+      drone = new Scaledrone(SCALEDRONE_CHANNEL_ID);
+      drone.on('error', () => finish(new Error('connection error')));
+      drone.on('open', err => {
+        if (err) return finish(err);
+        const r = drone.subscribe(ROOM_USERS, { historyCount: 100 });
+        r.on('history_message', m => { const d = m && m.data; if (d && d.type==='register' && d.uname===lower && d.vid!==myVid) taken = true; });
+        r.on('open', e => { if (e) return finish(e); setTimeout(() => finish(), 1500); });
+        r.on('error', () => finish(new Error('room error')));
+      });
+    }catch(e){ finish(e); }
+  });
+}
+
+/* ---- count a visit (once per browser session) ---- */
+(function trackVisit(){
+  try{
+    if (sessionStorage.getItem('gf_visit_sent')) return;
+    const vid = getVid();
+    sessionStorage.setItem('gf_visit_sent','1');
+    const send = () => sendToScaledrone(ROOM_VISITS, { type:'visit', vid, ts:Date.now(), page:location.pathname })
+      .catch(() => sessionStorage.removeItem('gf_visit_sent'));
+    if (document.readyState === 'complete') send(); else window.addEventListener('load', send);
+  }catch(e){}
+})();
+
+/* ======================= streak ======================= */
+const dkey = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const daysAgo = n => { const d = new Date(); d.setDate(d.getDate()-n); return d; };
+function loadStreak(){ return jget('gf_streak', { last:'', count:0, best:0, days:0, hist:[] }); }
+function touchStreak(){
+  const s = loadStreak(), today = dkey(new Date());
+  if (s.last === today) return { s, up:false };
+  s.count = (s.last === dkey(daysAgo(1))) ? (s.count||0) + 1 : 1;
+  s.last = today; s.best = Math.max(s.best||0, s.count); s.days = (s.days||0) + 1;
+  s.hist = [...(s.hist||[]), today].slice(-60);
+  jset('gf_streak', s);
+  return { s, up:true };
+}
+function shownStreak(s){ return (s.last === dkey(new Date()) || s.last === dkey(daysAgo(1))) ? s.count : 0; }
+
+/* ======================= profile ======================= */
+const NAME_RE = /^[A-Za-z0-9_]{3,16}$/;
+const getProfile = () => jget('gf_profile', null);
+
+function updateHero(){
+  const s = loadStreak(), p = getProfile(), n = shownStreak(s);
+  $('#hero').textContent = `🔥 ${n} day streak` + (p ? ` · @${p.username}` : ' · tap to join');
+  $('#profBtn').textContent = p ? p.username.charAt(0).toUpperCase() : '👤';
+}
+function backupCode(){
+  const p = getProfile(); if (!p) return '';
+  const o = { u:p.username, c:p.created, v:p.vid, s:loadStreak() };
+  return 'GF1-' + btoa(String.fromCharCode(...new TextEncoder().encode(JSON.stringify(o))));
+}
+function renderProfile(){
+  const s = loadStreak(), p = getProfile();
+  $('#pStreak').textContent = shownStreak(s); $('#pBest').textContent = s.best||0; $('#pDays').textContent = s.days||0;
+  const hist = new Set(s.hist||[]), names = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  $('#pWeek').innerHTML = [6,5,4,3,2,1,0].map(n => { const d = daysAgo(n), on = hist.has(dkey(d)); return `<div class="day${on?' on':''}${n===0?' today':''}"><i>${on?'🔥':''}</i>${names[d.getDay()]}</div>`; }).join('');
+  $('#doneBox').style.display = p ? 'block' : 'none';
+  $('#regBox').style.display = p ? 'none' : 'block';
+  if (p) $('#uShow').textContent = '@' + p.username;
+  $('#bkOut').value = backupCode();
+}
+
+$('#regBox').addEventListener('submit', async e => {
+  e.preventDefault();
+  const st = $('#regStatus'), btn = $('#regBtn'), name = $('#uIn').value.trim(), lower = name.toLowerCase();
+  st.className = 'status';
+  if (!NAME_RE.test(name)){ st.textContent = 'Use 3 to 16 letters, numbers or underscore only.'; st.classList.add('err'); return; }
+  if (RESERVED.includes(lower)){ st.textContent = 'That name is reserved. Try another one.'; st.classList.add('err'); return; }
+  btn.disabled = true; st.textContent = 'Checking if it\'s free...';
+  const vid = getVid(); let verified = true;
+  try{
+    if (await isNameTaken(lower, vid)){ st.textContent = `@${name} is already taken. Try another one!`; st.classList.add('err'); btn.disabled = false; return; }
+  }catch(err){ verified = false; }
+  try{ await sendToScaledrone(ROOM_USERS, { type:'register', username:name, uname:lower, vid, ts:Date.now() }); }catch(err){ verified = false; }
+  jset('gf_profile', { username:name, created:Date.now(), vid });
+  updateHero(); renderProfile(); btn.disabled = false;
+  toast(`Welcome, @${name}! 🎉`);
+  if (!verified) { $('#bkStatus').textContent = 'Saved on this device. We could not reach the server to reserve it online, so keep your backup code safe.'; }
+});
+
+$('#bkCopy').onclick = async () => {
+  const c = backupCode(), st = $('#bkStatus'); st.className = 'status';
+  if (!c){ st.textContent = 'Register a username first.'; st.classList.add('err'); return; }
+  try{ await navigator.clipboard.writeText(c); }catch(e){ $('#bkOut').select(); document.execCommand('copy'); }
+  st.textContent = 'Copied! Save it somewhere safe. 🔐'; st.classList.add('ok');
+};
+$('#bkRestore').onclick = () => {
+  const st = $('#bkStatus'); st.className = 'status';
+  try{
+    const code = $('#bkIn').value.trim();
+    if (!code.startsWith('GF1-')) throw 0;
+    const o = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(code.slice(4)), c => c.charCodeAt(0))));
+    if (!NAME_RE.test(o.u) || !o.v || typeof o.v !== 'string') throw 0;
+    localStorage.setItem('gf_vid', String(o.v).slice(0,60));
+    jset('gf_profile', { username:o.u, created:+o.c || Date.now(), vid:String(o.v).slice(0,60) });
+    const a = loadStreak(), b = o.s || {};
+    const m = { best:Math.max(a.best||0,b.best||0), days:Math.max(a.days||0,b.days||0), hist:[...new Set([...(a.hist||[]),...(b.hist||[])])].sort().slice(-60) };
+    const pick = ((b.last||'') > (a.last||'') || ((b.last||'')===(a.last||'') && (b.count||0) > (a.count||0))) ? b : a;
+    jset('gf_streak', { last:pick.last||'', count:pick.count||0, best:m.best, days:m.days, hist:m.hist });
+    updateHero(); renderProfile(); $('#bkIn').value = '';
+    st.textContent = `Restored @${o.u}! 🎉`; st.classList.add('ok');
+  }catch(e){ st.textContent = 'That backup code does not look right.'; st.classList.add('err'); }
+};
+
+/* run streak on load */
+(function initStreak(){
+  const { s, up } = touchStreak();
+  updateHero();
+  if (up){
+    const hero = $('#hero'); hero.classList.add('pop');
+    const marks = {1:'Welcome! Your streak begins today 🔥', 3:'3 day streak! Nice! 🔥', 7:'7 day streak! One whole week! 🏆', 14:'14 days in a row! Amazing! 🌟', 30:'30 day streak! Legend! 👑', 50:'50 day streak! Unreal! 🚀', 100:'100 DAYS! You are a champion! 🏅'};
+    setTimeout(() => toast(marks[s.count] || `Day ${s.count} of your streak 🔥`), 700);
+  }
+})();
+
+/* ======================= share ======================= */
+const SITE_URL = new URL('./', location.href).href;
+const SHARE_BASE = 'Come play free games on games.fun! 🎮 Cricket, battles, Block Craft, Chess, Snake and more, made by two 13-year-olds.';
+function shareParts(){ const text = $('#shMsg').value.trim(); return { text, full: text + ' ' + SITE_URL }; }
+function shareLinks(){
+  const { text, full } = shareParts(), e = encodeURIComponent;
+  $('#shWa').href = 'https://wa.me/?text=' + e(full);
+  $('#shTg').href = 'https://t.me/share/url?url=' + e(SITE_URL) + '&text=' + e(text);
+  $('#shX').href  = 'https://twitter.com/intent/tweet?text=' + e(text) + '&url=' + e(SITE_URL);
+  $('#shFb').href = 'https://www.facebook.com/sharer/sharer.php?u=' + e(SITE_URL);
+  $('#shMl').href = 'mailto:?subject=' + e('Check out games.fun') + '&body=' + e(full);
+  $('#shSm').href = 'sms:?&body=' + e(full);
+}
+function renderShare(){
+  const n = shownStreak(loadStreak()), p = getProfile(), fire = $('#shFire');
+  $('#shLink').textContent = SITE_URL.replace(/^https?:\/\//,'');
+  if (n > 1){ fire.style.display = 'inline-block'; fire.textContent = `🔥 ${n} day streak` + (p ? ' · @'+p.username : ''); }
+  else fire.style.display = 'none';
+  $('#shMsg').value = (n > 1 ? `I'm on a ${n} day streak on games.fun! 🔥 ` : '') + SHARE_BASE;
+  shareLinks();
+  const qr = $('#shQr'); qr.parentElement.style.display = '';
+  qr.onerror = () => { qr.parentElement.style.display = 'none'; };
+  qr.src = 'https://api.qrserver.com/v1/create-qr-code/?size=420x420&margin=0&data=' + encodeURIComponent(SITE_URL);
+}
+async function copyText(t, ok){
+  try{ await navigator.clipboard.writeText(t); }catch(e){ const a = document.createElement('textarea'); a.value = t; document.body.appendChild(a); a.select(); document.execCommand('copy'); a.remove(); }
+  toast(ok);
+}
+$('#shMsg').addEventListener('input', shareLinks);
+$('#shCopyLink').onclick = () => copyText(SITE_URL, 'Link copied! 📋');
+$('#shCopyMsg').onclick  = () => copyText(shareParts().full, 'Message copied! 📝');
+$('#shNative').onclick = async () => {
+  const { text, full } = shareParts();
+  if (navigator.share){ try{ await navigator.share({ title:'games.fun', text, url:SITE_URL }); }catch(e){} }
+  else copyText(full, 'Sharing menu not available, message copied instead 📋');
+};
+
+/* ======================= feedback form ======================= */
+let rating = 0;
+const stars = [...document.querySelectorAll('#stars button')];
+function paintStars(n){ stars.forEach(s => s.classList.toggle('on', +s.dataset.v <= n)); }
+stars.forEach(s => s.onclick = () => { rating = +s.dataset.v; paintStars(rating); });
+$('#fbMsg').addEventListener('input', e => $('#cnt').textContent = e.target.value.length + '/500');
+(function prefillName(){ const p = getProfile(); if (p) $('#fbName').value = p.username; })();
+
+$('#fbForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const st = $('#fbStatus'), btn = $('#sendBtn');
+  const msg = $('#fbMsg').value.trim(), name = $('#fbName').value.trim() || 'Anonymous';
+  st.className = 'status';
+  if (!rating){ st.textContent = 'Please tap a star rating first ⭐'; st.classList.add('err'); return; }
+  if (msg.length < 3){ st.textContent = 'Please write a few words of feedback ✍️'; st.classList.add('err'); return; }
+  try{ const last = +localStorage.getItem('gf_fb_last') || 0; if (Date.now()-last < 30000){ st.textContent = 'Please wait a little before sending again.'; st.classList.add('err'); return; } }catch(_){}
+  btn.disabled = true; st.textContent = 'Sending...';
+  try{
+    await sendToScaledrone(ROOM_FEEDBACK, { type:'feedback', name, rating, msg, ts:Date.now() });
+    st.textContent = 'Thank you! Your feedback was sent 💛'; st.classList.add('ok');
+    try{ localStorage.setItem('gf_fb_last', Date.now()); }catch(_){}
+    $('#fbMsg').value=''; $('#cnt').textContent='0/500'; rating=0; paintStars(0);
+  }catch(err){
+    st.textContent = 'Could not send right now. Check your internet and try again.'; st.classList.add('err');
+  }finally{ btn.disabled = false; }
+});
+</script>
+</body>
+</html>

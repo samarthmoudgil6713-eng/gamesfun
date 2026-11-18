@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>games.fun · Stats</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Patrick+Hand&display=swap" rel="stylesheet">
+<script src="https://cdn.scaledrone.com/scaledrone.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#fffdf6;color:#111;font-family:"Patrick Hand",system-ui,sans-serif;font-size:20px;padding:20px;display:flex;flex-direction:column;align-items:center;min-height:100vh}
+  .wrap{width:100%;max-width:820px}
+  h1{font-family:"Bangers",sans-serif;font-weight:400;font-size:clamp(40px,10vw,64px);letter-spacing:2px;margin:10px 0 4px}
+  .sub{color:#666;margin-bottom:18px}
+  .conn{display:inline-block;padding:3px 12px;border-radius:99px;border:2px solid #111;font-size:16px;background:#eee;vertical-align:middle;margin-left:6px}
+  .conn.ok{background:#b8f2c8}.conn.err{background:#ffc9d0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+  .stat{border:3px solid #111;border-radius:22px;background:#fff;padding:16px;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+  .stat b{display:block;font-size:44px;line-height:1.05;font-family:"Bangers",sans-serif;letter-spacing:1px;font-weight:400}
+  .stat span{color:#666;font-size:17px}
+  .stat.y{background:#fff3b8}.stat.g{background:#d6f6dd}.stat.p{background:#ffe0e4}.stat.b{background:#dcebff}
+  .panel{border:3px solid #111;border-radius:24px;background:#fff;padding:18px;margin-bottom:22px}
+  .panel h2{font-family:"Bangers",sans-serif;font-weight:400;font-size:32px;letter-spacing:1.5px;margin-bottom:12px}
+  .chart{display:flex;align-items:flex-end;gap:8px;height:150px}
+  .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:15px}
+  .col .bar{width:100%;background:#ff3b5c;border:3px solid #111;border-radius:8px 8px 0 0;min-height:3px;transition:height .4s}
+  .col em{font-style:normal;font-size:15px;color:#444;margin-bottom:2px}
+  .col small{margin-top:4px;color:#666;font-size:14px}
+  .tools{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+  select,button{font:inherit;font-size:18px;border:3px solid #111;border-radius:14px;padding:8px 14px;background:#fff;cursor:pointer}
+  button:hover{background:#fff4c2}
+  button.danger:hover{background:#ffc9d0}
+  .rev{border:3px solid #111;border-radius:18px;padding:14px;margin-bottom:12px;background:#fffdf6}
+  .rev-top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:6px}
+  .rev-top b{font-size:22px}.rev-top time{color:#777;font-size:16px}
+  .st{letter-spacing:2px;font-size:22px}
+  .rev p{white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere;font-size:20px;line-height:1.35}
+  .none{text-align:center;color:#777;padding:24px}
+  .note{color:#777;font-size:16px;line-height:1.35;margin-top:6px}
+  /* gate */
+  #gate{position:fixed;inset:0;background:#fffdf6;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:20px;text-align:center}
+  #gate input{font:inherit;font-size:22px;border:3px solid #111;border-radius:16px;padding:12px 16px;text-align:center;width:min(300px,90vw)}
+  #gate .bad{color:#d6283f;min-height:24px}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <h1>STATS</h1>
+  <p>Enter the passcode</p>
+  <input id="pw" type="password" placeholder="passcode" autocomplete="off">
+  <button id="pwBtn">Open</button>
+  <div class="bad" id="pwBad"></div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <h1>GAMES.FUN STATS <span class="conn" id="conn">connecting...</span></h1>
+  <p class="sub">Visits and reviews from your Scaledrone channel.</p>
+
+  <div class="grid">
+    <div class="stat y"><b id="sTotal">0</b><span>total visits</span></div>
+    <div class="stat g"><b id="sUnique">0</b><span>unique visitors</span></div>
+    <div class="stat b"><b id="sToday">0</b><span>visits today</span></div>
+    <div class="stat p"><b id="sRev">0</b><span>reviews</span></div>
+    <div class="stat y"><b id="sAvg">–</b><span>average rating</span></div>
+  </div>
+
+  <div class="panel">
+    <h2>LAST 7 DAYS</h2>
+    <div class="chart" id="chart"></div>
+  </div>
+
+  <div class="panel">
+    <h2>REVIEWS</h2>
+    <div class="tools">
+      <select id="fStar">
+        <option value="0">All ratings</option>
+        <option value="5">5 stars</option><option value="4">4 stars</option><option value="3">3 stars</option><option value="2">2 stars</option><option value="1">1 star</option>
+      </select>
+      <select id="fSort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="high">Highest rating</option><option value="low">Lowest rating</option></select>
+      <button id="exp">⬇ Export</button>
+      <button id="clr" class="danger">🗑 Clear saved</button>
+    </div>
+    <div id="reviews"></div>
+    <p class="note">This page saves everything it receives in this browser, so totals keep growing each time you open it. Scaledrone only returns its most recent stored messages when the page loads, so open this page now and then to avoid missing any.</p>
+  </div>
+</div>
+
+<script>
+/* ======================= config ======================= */
+const SCALEDRONE_CHANNEL_ID = 'oNweOwjOVoLfw8KA';
+const ROOM_VISITS   = 'observable-visits';
+const ROOM_FEEDBACK = 'observable-feedback';
+const PASSCODE = 'samarth2026';   // change this! (client-side only, keeps casual visitors out)
+
+/* ======================= gate ======================= */
+const $ = s => document.querySelector(s);
+function unlock(){ $('#gate').style.display='none'; $('#app').style.display='block'; start(); }
+function tryPw(){
+  if ($('#pw').value === PASSCODE){ try{ sessionStorage.setItem('gf_admin','1'); }catch(e){} unlock(); }
+  else $('#pwBad').textContent = 'Wrong passcode';
+}
+$('#pwBtn').onclick = tryPw;
+$('#pw').addEventListener('keydown', e => { if(e.key==='Enter') tryPw(); });
+try{ if (sessionStorage.getItem('gf_admin')==='1') unlock(); }catch(e){}
+
+/* ======================= data ======================= */
+const KEY_V = 'gf_admin_visits', KEY_R = 'gf_admin_reviews';
+function load(k){ try{ return JSON.parse(localStorage.getItem(k)) || {}; }catch(e){ return {}; } }
+function save(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+let visits = {}, reviews = {};   // visits: id -> [ts, vid]   reviews: id -> {ts,name,rating,msg}
+
+function msgTime(m){ return (m.data && +m.data.ts) || (m.timestamp ? m.timestamp*1000 : Date.now()); }
+function onVisit(m){
+  if (!m || !m.data || m.data.type !== 'visit' || !m.id) return;
+  visits[m.id] = [msgTime(m), String(m.data.vid || m.id).slice(0,40)];
+}
+function onReview(m){
+  if (!m || !m.data || m.data.type !== 'feedback' || !m.id) return;
+  const d = m.data, r = Math.max(1, Math.min(5, Math.round(+d.rating) || 0));
+  if (!r) return;
+  reviews[m.id] = { ts: msgTime(m), name: String(d.name||'Anonymous').slice(0,40), rating: r, msg: String(d.msg||'').slice(0,500) };
+}
+
+let dirty = false, timer = null;
+function changed(){ dirty = true; if(!timer) timer = setTimeout(()=>{ timer=null; if(dirty){ dirty=false; save(KEY_V,visits); save(KEY_R,reviews); } renderAll(); }, 250); }
+
+/* ======================= scaledrone ======================= */
+let started = false;
+function start(){
+  if (started) return; started = true;
+  visits = load(KEY_V); reviews = load(KEY_R);
+  renderAll();
+  const conn = $('#conn');
+  if (typeof Scaledrone === 'undefined'){ conn.textContent='offline'; conn.className='conn err'; return; }
+  const drone = new Scaledrone(SCALEDRONE_CHANNEL_ID);
+  drone.on('open', err => {
+    if (err){ conn.textContent='error'; conn.className='conn err'; return; }
+    conn.textContent='live'; conn.className='conn ok';
+    const rv = drone.subscribe(ROOM_VISITS,   { historyCount: 100 });
+    const rf = drone.subscribe(ROOM_FEEDBACK, { historyCount: 100 });
+    rv.on('history_message', m => { onVisit(m);  changed(); });
+    rv.on('message',         m => { onVisit(m);  changed(); });
+    rf.on('history_message', m => { onReview(m); changed(); });
+    rf.on('message',         m => { onReview(m); changed(); });
+  });
+  drone.on('error',  () => { conn.textContent='error';  conn.className='conn err'; });
+  drone.on('close',  () => { conn.textContent='closed'; conn.className='conn err'; });
+}
+
+/* ======================= render ======================= */
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const dayKey = ts => { const d = new Date(ts); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); };
+
+function renderAll(){
+  const v = Object.values(visits);
+  const todayK = dayKey(Date.now());
+  $('#sTotal').textContent  = v.length;
+  $('#sUnique').textContent = new Set(v.map(x=>x[1])).size;
+  $('#sToday').textContent  = v.filter(x => dayKey(x[0])===todayK).length;
+
+  const r = Object.values(reviews);
+  $('#sRev').textContent = r.length;
+  $('#sAvg').textContent = r.length ? (r.reduce((a,b)=>a+b.rating,0)/r.length).toFixed(1)+' ⭐' : '–';
+
+  // 7-day chart
+  const days = [];
+  for (let i=6;i>=0;i--){ const d = new Date(); d.setDate(d.getDate()-i); days.push({k:dayKey(d), label:d.toLocaleDateString(undefined,{weekday:'short'}), n:0}); }
+  v.forEach(x => { const d = days.find(y => y.k===dayKey(x[0])); if (d) d.n++; });
+  const max = Math.max(1, ...days.map(d=>d.n));
+  $('#chart').innerHTML = days.map(d => `<div class="col"><em>${d.n}</em><div class="bar" style="height:${Math.round(d.n/max*100)}px"></div><small>${d.label}</small></div>`).join('');
+
+  renderReviews();
+}
+
+function renderReviews(){
+  const fs = +$('#fStar').value, sort = $('#fSort').value;
+  let r = Object.values(reviews).filter(x => !fs || x.rating===fs);
+  const sorters = { new:(a,b)=>b.ts-a.ts, old:(a,b)=>a.ts-b.ts, high:(a,b)=>b.rating-a.rating||b.ts-a.ts, low:(a,b)=>a.rating-b.rating||b.ts-a.ts };
+  r.sort(sorters[sort]);
+  $('#reviews').innerHTML = r.length ? r.map(x =>
+    `<div class="rev"><div class="rev-top"><b>${esc(x.name)} <span class="st">${'⭐'.repeat(x.rating)}</span></b><time>${esc(new Date(x.ts).toLocaleString())}</time></div><p>${esc(x.msg)}</p></div>`).join('')
+    : '<div class="none">No reviews yet.</div>';
+}
+$('#fStar').onchange = renderReviews; $('#fSort').onchange = renderReviews;
+
+/* ======================= tools ======================= */
+$('#exp').onclick = () => {
+  const blob = new Blob([JSON.stringify({ visits: Object.keys(visits).length, reviews: Object.values(reviews) }, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'gamesfun-stats.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+};
+$('#clr').onclick = () => {
+  if (!confirm('Clear the visits and reviews saved in this browser? (Scaledrone history will load again, but older data is lost.)')) return;
+  visits = {}; reviews = {}; save(KEY_V,visits); save(KEY_R,reviews); renderAll();
+};
+</script>
+</body>
+</html>
